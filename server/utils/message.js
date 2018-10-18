@@ -1,10 +1,10 @@
 var moment = require('moment');
-
+const mongoose=require('mongoose');
+Schema = mongoose.Schema;
 var generateMessage = (from, text) => {
   return {
     from,
-    text,
-    createdAt: moment().valueOf()
+    text
   };
 };
 

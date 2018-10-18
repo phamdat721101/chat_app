@@ -6,11 +6,12 @@
   <title>Join | ChatApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/chat.js"></script>
 </head>
 
 <body class="centered-form">
   <div class="centered-form__form">
-    <form action="/chat.html">
+    <form onsubmit="submit(); return false;" action="/chat.html">
       <div class="form-field">
         <h3>Join a Chat<h3>
       </div>
@@ -23,7 +24,7 @@
         <input type="text" name="room"/>
       </div>
       <div class="form-field">
-        <button>Join</button>
+        <input type="submit" value="submit">
       </div>
     </form>
   </div>

@@ -1,5 +1,12 @@
 var socket = io();
-
+//const MongoClient=require('mongodb').MongoClient;
+function submit(){
+  // var password=document.getElementById('password').value;
+  // if(password=="bin1009"){
+  //   window.location="chat.html";
+  // }
+  alert('Cannot access');
+}
 function scrollToBottom () {
   // Selectors
   var messages = jQuery('#messages');
@@ -17,6 +24,20 @@ function scrollToBottom () {
 }
 
 socket.on('connect', function () {
+  // var delivery = new Delivery(socket);
+ 
+  //   delivery.on('delivery.connect',function(delivery){
+  //     $("input[type=submit]").click(function(evt){
+  //       var file = $("input[type=file]")[0].files[0];
+  //       var extraParams = {foo: 'bar'};
+  //       delivery.send(file, extraParams);
+  //       evt.preventDefault();
+  //     });
+  //   });
+ 
+  //   delivery.on('send.success',function(fileUID){
+  //     console.log("file was successfully sent.");
+  //   });
   var params = jQuery.deparam(window.location.search);
 
   socket.emit('join', params, function (err) {
@@ -26,6 +47,7 @@ socket.on('connect', function () {
     } else {
       console.log('No error');
     }
+    
   });
 });
 
@@ -44,12 +66,11 @@ socket.on('updateUserList', function (users) {
 });
 
 socket.on('newMessage', function (message) {
-  var formattedTime = moment(message.createdAt).format('h:mm a');
+  //var formattedTime = moment(message.createdAt).format('h:mm a');
   var template = jQuery('#message-template').html();
   var html = Mustache.render(template, {
     text: message.text,
-    from: message.from,
-    createdAt: formattedTime
+    from: message.from
   });
 
   jQuery('#messages').append(html);
