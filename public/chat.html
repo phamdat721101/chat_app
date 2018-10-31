@@ -24,10 +24,11 @@
         <input name="message" type="text" placeholder="Message" autofocus autocomplete="off"/>
         <button>Send</button>
       </form>
+      <button><input type="file" value="file" id="imagefile" accept="image/*" value="Send File"></button>
       <button id="send-location">Send location</button>
     </div>
   </div>
-
+  
   <script id="message-template" type="text/template">
     <li class="message">
       <div class="message__title">
@@ -39,7 +40,22 @@
       </div>
     </li>
   </script>
-
+  <script id="data-template" type="text/template">
+    <li class="message">
+      <div class="message__title">
+        <h4>{{from}}</h4>
+      </div>
+      <div class="message__body">
+          <img height="300" width="300" <source srcset="{{data}}"  />
+      </div>
+    </li>
+  </script>
+  <!-- <li class="message">
+      <div class="message__body">
+          <div id="lines"></div>
+      </div>
+  </li> -->
+  
   <script id="location-message-template" type="text/template">
     <li class="message">
       <div class="message__title">

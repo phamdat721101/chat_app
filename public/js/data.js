@@ -51,24 +51,25 @@ socket.on('connect', function () {
   });
   
 });
-  function handleSendFile(e){
-    var data=e.target.files[0];
-    var reader=new FileReader();
-    reader.onload=function(evt){
-      //  var span = document.getElementById('lines');
-      //  span.innerHTML = ['<img src="', evt.target.result,
-      //                    '" title="', escape(evt.name), '" height="300" width="300"/><br>'].join('');
-      socket.emit('user image',evt.target.result);
-      console.log(evt.target.result);
-    };
-    reader.readAsDataURL(data);
-  };
-  document.getElementById('imagefile').addEventListener('change',handleSendFile,false);
+//   function handleSendFile(e){
+//     var data=e.target.files[0];
+//     var reader=new FileReader();
+//     reader.onload=function(evt){
+//       //  var span = document.getElementById('lines');
+//       //  span.innerHTML = ['<img src="', evt.target.result,
+//       //                    '" title="', escape(evt.name), '" height="300" width="300"/><br>'].join('');
+//       socket.emit('user image',evt.target.result);
+//       console.log(evt.target.result);
+//     };
+//     reader.readAsDataURL(data);
+//   };
+//   document.getElementById('imagefile').addEventListener('change',handleSendFile,false);
   // socket.on('user image',function(message){
   //   console.log(message);
   //   var list=[];
   //   list.push(message);
   //   var span = document.getElementById('lines');
+    
   //   for(var i=0; i<list.length; i++){
   //     span.innerHTML+=['<img class="thumb" src="', list[i],
   //                      '" height="300" width="300" /><br>'].join('');
@@ -80,27 +81,27 @@ socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
 
-socket.on('updateUserList', function (users) {
-  var ol = jQuery('<ol></ol>');
+// socket.on('updateUserList', function (users) {
+//   var ol = jQuery('<ol></ol>');
 
-  users.forEach(function (user) {
-    ol.append(jQuery('<li></li>').text(user));
-  });
+//   users.forEach(function (user) {
+//     ol.append(jQuery('<li></li>').text(user));
+//   });
 
-  jQuery('#users').html(ol);
-});
+//   jQuery('#users').html(ol);
+// });
 
-socket.on('newMessage', function (message) {
-  //var formattedTime = moment(message.createdAt).format('h:mm a');
-  var template = jQuery('#message-template').html();
-  var html = Mustache.render(template, {
-    text: message.text,
-    from: message.from
-  });
+// socket.on('newMessage', function (message) {
+//   //var formattedTime = moment(message.createdAt).format('h:mm a');
+//   var template = jQuery('#message-template').html();
+//   var html = Mustache.render(template, {
+//     text: message.text,
+//     from: message.from
+//   });
 
-  jQuery('#messages').append(html);
-  scrollToBottom();
-});
+//   jQuery('#messages').append(html);
+//   scrollToBottom();
+// });
 socket.on('user image', function (message) {
   //var formattedTime = moment(message.createdAt).format('h:mm a');
   var template = jQuery('#data-template').html();
@@ -112,50 +113,50 @@ socket.on('user image', function (message) {
   jQuery('#messages').append(html);
   scrollToBottom();
 });
-socket.on('newLocationMessage', function (message) {
-  var formattedTime = moment(message.createdAt).format('h:mm a');
-  var template = jQuery('#location-message-template').html();
-  var html = Mustache.render(template, {
-    from: message.from,
-    url: message.url,
-    createdAt: formattedTime
-  });
+// socket.on('newLocationMessage', function (message) {
+//   var formattedTime = moment(message.createdAt).format('h:mm a');
+//   var template = jQuery('#location-message-template').html();
+//   var html = Mustache.render(template, {
+//     from: message.from,
+//     url: message.url,
+//     createdAt: formattedTime
+//   });
 
-  jQuery('#messages').append(html);
-  scrollToBottom();
-});
+//   jQuery('#messages').append(html);
+//   scrollToBottom();
+// });
 
-jQuery('#message-form').on('submit', function (e) {
-  e.preventDefault();
+// jQuery('#message-form').on('submit', function (e) {
+//   e.preventDefault();
 
-  var messageTextbox = jQuery('[name=message]');
+//   var messageTextbox = jQuery('[name=message]');
 
-  socket.emit('createMessage', {
-    text: messageTextbox.val()
-  }, function () {
-    messageTextbox.val('')
-  });
-});
+//   socket.emit('createMessage', {
+//     text: messageTextbox.val()
+//   }, function () {
+//     messageTextbox.val('')
+//   });
+// });
 
-var locationButton = jQuery('#send-location');
-locationButton.on('click', function () {
-  if (!navigator.geolocation) {
-    return alert('Geolocation not supported by your browser.');
-  }
+// var locationButton = jQuery('#send-location');
+// locationButton.on('click', function () {
+//   if (!navigator.geolocation) {
+//     return alert('Geolocation not supported by your browser.');
+//   }
 
-  locationButton.attr('disabled', 'disabled').text('Sending location...');
+//   locationButton.attr('disabled', 'disabled').text('Sending location...');
 
-  navigator.geolocation.getCurrentPosition(function (position) {
-    locationButton.removeAttr('disabled').text('Send location');
-    socket.emit('createLocationMessage', {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude
-    });
-  }, function () {
-    locationButton.removeAttr('disabled').text('Send location');
-    alert('Unable to fetch location.');
-  });
-});
+//   navigator.geolocation.getCurrentPosition(function (position) {
+//     locationButton.removeAttr('disabled').text('Send location');
+//     socket.emit('createLocationMessage', {
+//       latitude: position.coords.latitude,
+//       longitude: position.coords.longitude
+//     });
+//   }, function () {
+//     locationButton.removeAttr('disabled').text('Send location');
+//     alert('Unable to fetch location.');
+//   });
+// });
 
 // function image (from, base64Image) {
 //   $('#lines').append($('<p>').append($('<b>').text(from), '<img src="' + base64Image + '"/>'));

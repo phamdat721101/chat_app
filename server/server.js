@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 const bodyParser = require("body-parser");
-const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage, generateData} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
 const {Users} = require('./utils/users');
 const dl=require('delivery');
@@ -21,23 +21,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 io.on('connection', (socket) => {
   console.log('New user connected');
-  var delivery=dl.listen(socket);
-	delivery.on('receive.success',function(file){
-		var params=file.params;
-		fs.writefile(file.name,file.buffer,function(err){
-			if(err){
-				console.log('File cannot be sent');
-			}
-			else{
-				console.log('File saved');
-			}
-		});
-	});
+  
   var arr=[];
   socket.on('join', (params, callback) => {
-    if (!isRealString(params.name) || !isRealString(params.room)) {
-      return callback('Name and room name are required.');
-    }
+    // if (!isRealString(params.name) || !isRealString(params.room)) {
+    //   return callback('Name and room name are required.');
+    // }
     
     MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
       if(err){
@@ -95,6 +84,7 @@ io.on('connection', (socket) => {
         console.log('Fail To Connect');
       }
       console.log('Connected to MongoDB server');
+      
       db.collection('Users').insertOne({
         name:user.name,
         message:message.text
@@ -109,7 +99,33 @@ io.on('connection', (socket) => {
     });
     callback();
   });
-
+  socket.on('user image', function (msg) {
+    var user = users.getUser(socket.id);
+    console.log(msg);
+    io.to(user.room).emit('user image', generateData(user.name,msg));
+    //socket.emit('user image', msg);
+    // MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
+    //   if(err){
+    //     console.log('Fail To Connect');
+    //   }
+    //   console.log('Connected to MongoDB server');
+    //   db.collection('image').insertOne({
+    //     image:msg
+    //   },function(err,result){
+    //     if(err){
+    //       return console.log('Fail to add image');
+    //     }
+    //     console.log('Success to add image');
+    //   });
+    //   db.collection('image').find().toArray(function(err,result){
+    //     for(var i=0;i<result.length;i++){
+    //       socket.emit('user image',result[i]["image"]);
+    //     }
+    //   });
+    //   db.close();
+    // });
+  });
+  
   socket.on('createLocationMessage', (coords) => {
     var user = users.getUser(socket.id);
 

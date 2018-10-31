@@ -7,7 +7,12 @@ var generateMessage = (from, text) => {
     text
   };
 };
-
+var generateData = (from, data) => {
+  return {
+    from,
+    data
+  };
+};
 var generateLocationMessage = (from, latitude, longitude) => {
   return {
     from,
@@ -16,4 +21,4 @@ var generateLocationMessage = (from, latitude, longitude) => {
   };
 };
 
-module.exports = {generateMessage, generateLocationMessage};
+module.exports = {generateMessage, generateLocationMessage, generateData};
