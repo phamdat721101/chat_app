@@ -1,10 +1,5 @@
 var socket = io();
-//const MongoClient=require('mongodb').MongoClient;
 function submit(){
-  // var password=document.getElementById('password').value;
-  // if(password=="bin1009"){
-  //   window.location="chat.html";
-  // }
   alert('Cannot access');
 }
 function scrollToBottom () {
@@ -24,32 +19,16 @@ function scrollToBottom () {
 }
 
 socket.on('connect', function () {
-  // var delivery = new Delivery(socket);
- 
-  //   delivery.on('delivery.connect',function(delivery){
-  //     $("input[type=submit]").click(function(evt){
-  //       var file = $("input[type=file]")[0].files[0];
-  //       var extraParams = {foo: 'bar'};
-  //       delivery.send(file, extraParams);
-  //       evt.preventDefault();
-  //     });
-  //   });
- 
-  //   delivery.on('send.success',function(fileUID){
-  //     console.log("file was successfully sent.");
-  //   });
   var params = jQuery.deparam(window.location.search);
-
   socket.emit('join', params, function (err) {
     if (err) {
       alert(err);
       window.location.href = '/';
     } else {
       console.log('No error');
-    }
-    
-  });
-  
+    }   
+    console.log('Hello to chat app');
+  });  
 });
   function handleSendFile(e){
     var data=e.target.files[0];
@@ -64,22 +43,9 @@ socket.on('connect', function () {
     reader.readAsDataURL(data);
   };
   document.getElementById('imagefile').addEventListener('change',handleSendFile,false);
-  // socket.on('user image',function(message){
-  //   console.log(message);
-  //   var list=[];
-  //   list.push(message);
-  //   var span = document.getElementById('lines');
-  //   for(var i=0; i<list.length; i++){
-  //     span.innerHTML+=['<img class="thumb" src="', list[i],
-  //                      '" height="300" width="300" /><br>'].join('');
-  //     //scrollToBottom();
-  //   }
-    
-  // });
 socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
-
 socket.on('updateUserList', function (users) {
   var ol = jQuery('<ol></ol>');
 
@@ -102,7 +68,6 @@ socket.on('newMessage', function (message) {
   scrollToBottom();
 });
 socket.on('user image', function (message) {
-  //var formattedTime = moment(message.createdAt).format('h:mm a');
   var template = jQuery('#data-template').html();
   var html = Mustache.render(template, {
     data: message.data,
@@ -156,19 +121,3 @@ locationButton.on('click', function () {
     alert('Unable to fetch location.');
   });
 });
-
-// function image (from, base64Image) {
-//   $('#lines').append($('<p>').append($('<b>').text(from), '<img src="' + base64Image + '"/>'));
-// }
-// $(function(){
-//   $('#imagefile').bind('change', function(e){
-//     var data = e.originalEvent.target.files[0];
-//     var reader = new FileReader();
-//     reader.onload = function(evt){
-//       image('me', evt.target.result);
-//       socket.emit('user image', evt.target.result);
-//     };
-//     reader.readAsDataURL(data);
-    
-//   });
-// });

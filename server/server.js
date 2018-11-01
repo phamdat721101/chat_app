@@ -21,12 +21,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 io.on('connection', (socket) => {
   console.log('New user connected');
-  
   var arr=[];
+  var count=1; 
   socket.on('join', (params, callback) => {
-    // if (!isRealString(params.name) || !isRealString(params.room)) {
-    //   return callback('Name and room name are required.');
-    // }
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      return callback('Name and room name are required.');
+    }
     
     MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
       if(err){
@@ -43,33 +43,37 @@ io.on('connection', (socket) => {
         }
         console.log('Success to Add User');
       });
-      var arr=[];
-      db.collection('Users').find().toArray(function(err,result){
-        for(var i=0;i<result.length;i++){
-          if(result[i]["room"]==params.room){
-            
-            socket.join(params.room);
-            
-            arr[i]=result[i]["user"];
-            users.addUser(result[i]["user_id"], arr[i], params.room);
-            io.to(params.room).emit('updateUserList', users.getUserList(params.room));
-            
-          }
-        }
-      });
-
+      socket.join(params.room);
       users.removeUser(socket.id);
-      socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
-      
-      socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
-      db.collection('Users').find().toArray(function(err,result){
-        for(var i=0;i<result.length;i++){
-          io.to(params.room).emit('newMessage', generateMessage(result[i]["name"], result[i]["message"]));
-        }
-      });
+      users.addUser(socket.id, params.name, params.room);
+      io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+      socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));     
+      while(count==1){
+        db.collection('Users').find().toArray(function(err,result){
+          if(err){
+            console.log('cannot connect to users datatable');
+          }
+          for(var i=0;i<result.length;i++){
+            if(params.room==result[i]["room"]){
+              io.to(params.room).emit('newMessage', generateMessage(result[i]["name"], result[i]["message"]));
+            }
+          }
+        });
+        db.collection('image').find().toArray(function(err,result){
+          if(err){
+            console.log('cannot connect to image datatable');
+          }
+          for(var i=0;i<result.length;i++){
+            if(params.room==result[i]["room"]){
+              io.to(params.room).emit('user image',generateData(result[i]["user"],result[i]["image"]));
+            }    
+          }
+        });
+        count++;
+      }
       db.close();
     });
-    
+    socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
     callback();
   });
 
@@ -87,7 +91,8 @@ io.on('connection', (socket) => {
       
       db.collection('Users').insertOne({
         name:user.name,
-        message:message.text
+        message:message.text,
+        room:user.room
       },function(err,result){
         if (err) {
           return console.log('Unable to insert user', err);
@@ -103,27 +108,23 @@ io.on('connection', (socket) => {
     var user = users.getUser(socket.id);
     console.log(msg);
     io.to(user.room).emit('user image', generateData(user.name,msg));
-    //socket.emit('user image', msg);
-    // MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
-    //   if(err){
-    //     console.log('Fail To Connect');
-    //   }
-    //   console.log('Connected to MongoDB server');
-    //   db.collection('image').insertOne({
-    //     image:msg
-    //   },function(err,result){
-    //     if(err){
-    //       return console.log('Fail to add image');
-    //     }
-    //     console.log('Success to add image');
-    //   });
-    //   db.collection('image').find().toArray(function(err,result){
-    //     for(var i=0;i<result.length;i++){
-    //       socket.emit('user image',result[i]["image"]);
-    //     }
-    //   });
-    //   db.close();
-    // });
+    MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
+      if(err){
+        console.log('Fail To Connect');
+      }
+      console.log('Connected to MongoDB server');
+      db.collection('image').insertOne({
+        user:user.name,
+        image:msg,
+        room:user.room
+      },function(err,result){
+        if(err){
+          return console.log('Fail to add image');
+        }
+        console.log('Success to add image');
+      });
+      db.close();
+    });
   });
   
   socket.on('createLocationMessage', (coords) => {
