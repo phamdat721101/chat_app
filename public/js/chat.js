@@ -1,4 +1,4 @@
-var socket = io();
+var socket = io.connect('http://192.168.43.149:3000');
 function submit(){
   alert('Cannot access');
 }

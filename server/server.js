@@ -6,7 +6,6 @@ const bodyParser = require("body-parser");
 const {generateMessage, generateLocationMessage, generateData} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
 const {Users} = require('./utils/users');
-const dl=require('delivery');
 const fs=require('fs');
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -145,6 +144,6 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(port, () => {
+server.listen(port, '192.168.43.149' , () => {
   console.log(`Server is up on ${port}`);
 });
