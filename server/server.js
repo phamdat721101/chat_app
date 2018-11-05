@@ -1,9 +1,12 @@
+/*---------------
+      LIBRARY
+----------------*/
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 const bodyParser = require("body-parser");
-const {generateMessage, generateLocationMessage, generateData} = require('./utils/message');
+const {generateMessage, generateData} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
 const {Users} = require('./utils/users');
 const fs=require('fs');
@@ -18,6 +21,9 @@ const MongoClient = require('mongodb').MongoClient;
 app.use(express.static(publicPath));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+/*---------------
+ OPEN CONNECTION
+----------------*/
 io.on('connection', (socket) => {
   console.log('New user connected');
   var arr=[];
@@ -26,7 +32,7 @@ io.on('connection', (socket) => {
     if (!isRealString(params.name) || !isRealString(params.room)) {
       return callback('Name and room name are required.');
     }
-    
+    /*-----------------sAVE USER TO MONGODB------------------*/
     MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
       if(err){
         console.log('Fail To Connect');
@@ -42,6 +48,7 @@ io.on('connection', (socket) => {
         }
         console.log('Success to Add User');
       });
+      /*-------------------BROADCAST MESSAGE TO ALL USERS------------------- */
       socket.join(params.room);
       users.removeUser(socket.id);
       users.addUser(socket.id, params.name, params.room);
@@ -75,13 +82,16 @@ io.on('connection', (socket) => {
     socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
     callback();
   });
-
+  /*--------------------------------
+      GET AND SEND MESSAGE METHOD
+  --------------------------------*/
   socket.on('createMessage', (message, callback) => {
     var user = users.getUser(socket.id);
 
     if (user && isRealString(message.text)) {
       io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
     }
+    /*-----------SAVE MESSAGE TO DATABASE------------*/
     MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
       if(err){
         console.log('Fail To Connect');
@@ -103,10 +113,14 @@ io.on('connection', (socket) => {
     });
     callback();
   });
+  /*---------------------------------
+      GET AND SEND FILE METHOD
+  ----------------------------------*/
   socket.on('user image', function (msg) {
     var user = users.getUser(socket.id);
     console.log(msg);
     io.to(user.room).emit('user image', generateData(user.name,msg));
+    /*-----------------SAVE FILE TO DATABASE-----------------------*/
     MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
       if(err){
         console.log('Fail To Connect');
@@ -125,15 +139,9 @@ io.on('connection', (socket) => {
       db.close();
     });
   });
-  
-  socket.on('createLocationMessage', (coords) => {
-    var user = users.getUser(socket.id);
-
-    if (user) {
-      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));  
-    }
-  });
-
+  /*----------------
+    DISCONNECTION
+  -----------------*/
   socket.on('disconnect', () => {
     var user = users.removeUser(socket.id);
 
@@ -143,7 +151,9 @@ io.on('connection', (socket) => {
     }
   });
 });
-
-server.listen(port, '192.168.43.149' , () => {
+/*-------------------------
+      CLOSE CONNECTION
+  --------------------------*/
+server.listen(port, '192.168.100.14' , () => {
   console.log(`Server is up on ${port}`);
 });

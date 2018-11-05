@@ -1,5 +1,7 @@
 
-
+/*------------------
+    USER MODEL
+-------------------*/
 
 class Users {
   constructor () {
